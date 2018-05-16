@@ -170,3 +170,37 @@ class Flatten(Layer):
 
     def get_nparams(self):
         return 0
+
+class Dense(Layer):
+
+    LAYER_TYPE = 'dense'
+
+    def __init__(self, units):
+        self.units = units
+
+    def set_input_shape(self, in_shape):
+        self.in_shape = in_shape
+
+    def get_out_shape(self):
+        return self.units
+
+    def init_params(self):
+        self.W = np.random.randn(self.in_shape, self.units)
+        self.b = np.zeros((1, self.units))
+
+    def forward(self, X):
+        self.X = X
+        return np.matmul(X, self.W) + self.b
+
+    def backward(self, dZ):
+        m = self.X.shape[0]
+        self.dW = np.dot(self.X.T, dZ) / m
+        self.db = np.sum(dZ, axis=0) / m
+        return np.dot(dZ, self.W.T)
+
+    def update_params(self, lr):
+        self.W = self.W - lr * self.dW
+        self.b = self.b - lr * self.db
+
+    def get_nparams(self):
+        return np.product(self.W.shape) + np.product(self.b.shape)
