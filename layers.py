@@ -204,3 +204,51 @@ class Dense(Layer):
 
     def get_nparams(self):
         return np.product(self.W.shape) + np.product(self.b.shape)
+
+class Activation(Layer):
+
+    LAYER_TYPE = 'act'
+
+    ACTIVATIONS = ['relu', 'softmax']
+    def __init__(self, act='relu'):
+        assert act in Activation.ACTIVATIONS
+        self.act = act
+
+    def init_params(self):
+        pass
+
+    def set_input_shape(self, in_shape):
+        self.in_shape = in_shape
+
+    def get_out_shape(self):
+        return self.in_shape
+
+    def _softmax(self):
+        exp_vals = np.exp(self.X - self.X.max(axis=1, keepdims=True))
+        return exp_vals/ np.sum(exp_vals, axis=1, keepdims=True)
+
+    def _relu(self):
+        return np.maximum(self.X, 0)
+
+    def forward(self, X):
+        self.X = X
+        if self.act == Activation.ACTIVATIONS[0]:
+            return self._relu()
+        if self.act == Activation.ACTIVATIONS[1]:
+            return self._softmax()
+
+    def backward(self, dZ):
+        if self.act == Activation.ACTIVATIONS[0]:
+            return dZ * (self.X >= 1)
+
+        if self.act == Activation.ACTIVATIONS[1]:
+            m = dZ.shape[0]
+            grad = self._softmax()
+            grad[range(m), np.argmax(dZ, axis=1)] -= 1
+            return grad / m
+
+    def update_params(self, lr):
+        pass
+
+    def get_nparams(self):
+        return 0
