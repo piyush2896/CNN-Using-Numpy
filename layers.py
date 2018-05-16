@@ -144,3 +144,29 @@ class Conv2D(Layer):
 
     def get_nparams(self):
         return np.product(self.W.shape) + np.product(self.b.shape)
+
+class Flatten(Layer):
+
+    LAYER_TYPE = 'flatten'
+
+    def init_params(self):
+        pass
+
+    def set_input_shape(self, in_shape):
+        self.in_shape = in_shape
+
+    def get_out_shape(self):
+        return np.product(self.in_shape)
+
+    def forward(self, X):
+        self.X = X
+        return np.reshape(X, (-1, self.get_out_shape()))
+
+    def backward(self, dZ):
+        return np.reshape(np.array(dZ), [-1] + list(self.in_shape))
+
+    def update_params(self, lr):
+        pass
+
+    def get_nparams(self):
+        return 0
