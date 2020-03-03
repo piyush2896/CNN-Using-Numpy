@@ -135,7 +135,7 @@ class Conv2D(Layer):
                         self.dW[:,:,:,c] += x_slice * dZ[i, h, w, c]
                         self.db[:,:,:,c] += dZ[i, h, w, c]
                     
-        self.dA_prev[i, :, :, :] = da_prev_pad[self.padding:-self.padding, self.padding:-self.padding, :]
+            self.dA_prev[i, :, :, :] = da_prev_pad[self.padding:-self.padding, self.padding:-self.padding, :]
         return self.dA_prev
 
     def update_params(self, lr):
